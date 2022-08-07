@@ -77,6 +77,12 @@ def _compile_information(sum_k, general_params, solver_params, solvers,
         if general_params['solver_type'] == 'ctint' and solver_params['measure_histogram']:
             write_to_h5['pert_order_imp_{}'.format(icrsh)] = solvers[icrsh].perturbation_order
 
+        if general_params['solver_type'] == 'hubbard_I':
+            print('Daje')
+            #write_to_h5['G0_Refreq_{}'.format(icrsh)] = solvers[icrsh].G0_Refreq
+            #write_to_h5['Gimp_Refreq_{}'.format(icrsh)] = solvers[icrsh].G_Refreq
+            #write_to_h5['Sigma_Refreq_{}'.format(icrsh)] = solvers[icrsh].Sigma_Refreq
+
         if general_params['solver_type'] == 'hubbardI':
             write_to_h5['G0_Refreq_{}'.format(icrsh)] = solvers[icrsh].G0_Refreq
             write_to_h5['Gimp_Refreq_{}'.format(icrsh)] = solvers[icrsh].G_Refreq

@@ -1,0 +1,2 @@
+ it |         mu |                G(beta/2) per orbital |                 orbital occs up+down |      impurity occ |      E_tot |      E_DFT   E_bandcorr    E_int_imp         E_DC
+  0 |   -0.02704 |   -0.19994     -0.19994     -0.19994 |    0.33326      0.33326      0.33326 |           0.99977 |    0.00076 |    0.00000      0.00000      0.00000     -0.00076

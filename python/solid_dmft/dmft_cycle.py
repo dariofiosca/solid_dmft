@@ -648,7 +648,7 @@ def _dmft_step(sum_k, solvers, it, general_params,
             solvers[icrsh] = gf_mixer.mix_g0(solvers[icrsh], general_params, icrsh, archive,
                                              G0_freq_previous[icrsh], it, sum_k.deg_shells[icrsh])
 
-        if general_params['solver_type'] in ['cthyb', 'ctint', 'hubbardI', 'inchworm']:
+        if general_params['solver_type'] in ['cthyb', 'ctint', 'hubbardI','hubbard_I', 'inchworm']:
             solvers[icrsh].G0_freq << make_hermitian(solvers[icrsh].G0_freq)
         sum_k.symm_deg_gf(solvers[icrsh].G0_freq, ish=icrsh)
 

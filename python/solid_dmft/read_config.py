@@ -204,6 +204,39 @@ solver
 store_solver: bool, optional default = False
             store the whole solver object under DMFT_input in h5 archive
 
+
+hubbard_I parameters
+====================
+
+beta : inverse Temperature  
+
+l : orbital quantum number  
+
+n_msb : ??  
+
+use_spin_orbit : SOC calculations 
+
+n_mom : ??
+
+U_int : Coulomb U interaction 
+
+J_int : Hund's exchange 
+
+T_hub : temperature 
+
+verbosity : verbosity 
+
+Iteration_Number : 
+
+test_Convergence : 
+
+n_lev :  
+
+remove_split : 
+
+u4ind : 
+
+
 cthyb parameters
 ================
 length_cycle : int
@@ -383,7 +416,8 @@ PROPERTIES_PARAMS = {'general': {'seedname': {'converter': lambda s: s.replace('
                                                  'default': ['none']},
 
                                  'beta': {'converter': float, 'valid for': lambda x, _: x > 0,
-                                          'used': lambda params: params['general']['solver_type'] in ['cthyb', 'ctint', 'inchworm', 'hubbardI','ctseg']},
+                                          'used': lambda params: params['general']['solver_type'] in ['cthyb', 'ctint', 'inchworm', 'hubbard_I',
+                                           'hubbardI','ctseg']},
 
                                  'n_iter_dmft': {'converter': int, 'valid for': lambda x, _: x >= 0, 'used': True},
 
@@ -403,28 +437,30 @@ PROPERTIES_PARAMS = {'general': {'seedname': {'converter': lambda s: s.replace('
                                  'cpa_x': {'converter': lambda s: list(map(float, s.split(','))),
                                            'used': lambda params: params['general']['dc'] and params['general']['dc_type'] == 4},
 
-                                 'solver_type': {'valid for': lambda x, _: x in ['cthyb', 'ctint', 'ftps', 'hubbardI','ctseg'],
+                                 'solver_type': {'valid for': lambda x, _: x in ['cthyb', 'ctint', 'ftps', 'hubbard_I', 'hubbardI','ctseg'],
                                                  'used': True},
 
                                  'n_l': {'converter': int, 'valid for': lambda x, _: x > 0,
-                                         'used': lambda params: params['general']['solver_type'] in ['cthyb', 'inchworm', 'hubbardI', 'ctseg']
+                                         'used': lambda params: params['general']['solver_type'] in ['cthyb', 'inchworm', 'hubbardI','hubbard_I', 'ctseg']
                                          and (params['solver']['measure_G_l'] or params['solver']['legendre_fit'])},
 
                                  'n_iw': {'converter': int, 'valid for': lambda x, _: x > 0,
-                                          'used': lambda params: params['general']['solver_type'] in ['cthyb', 'ctint', 'inchworm', 'hubbardI','ctseg'], 'default': 1025},
+                                          'used': lambda params: params['general']['solver_type'] in ['cthyb', 'ctint', 'inchworm', 'hubbardI',
+                                           'hubbard_I', 'ctseg'], 'default': 1025},
 
                                  'n_tau': {'converter': int, 'valid for': lambda x, _: x > 0,
-                                           'used': lambda params: params['general']['solver_type'] in ['cthyb', 'ctint', 'inchworm', 'hubbardI','ctseg'], 'default': 10001},
+                                           'used': lambda params: params['general']['solver_type'] in ['cthyb', 'ctint', 'inchworm', 
+                                           'hubbard_I', 'hubbardI','ctseg'], 'default': 10001},
 
                                  'n_w': {'converter': int, 'valid for': lambda x, _: x > 0,
                                          'used': lambda params: params['general']['solver_type'] in ['ftps', 'hubbardI'], 'default': 5001},
 
                                  'w_range': {'converter': lambda s: tuple(map(float, s.split(','))),
                                              'valid for': lambda x, _: x[0] < x[1],
-                                             'used': lambda params: params['general']['solver_type'] in ['ftps', 'hubbardI'], 'default': (-10, 10)},
+                                             'used': lambda params: params['general']['solver_type'] in ['ftps', 'hubbardI', 'hubbard_I'], 'default': (-10, 10)},
 
                                  'eta': {'converter': float, 'valid for': lambda x, _: x >= 0,
-                                         'used': lambda params: params['general']['solver_type'] in ['ftps', 'hubbardI']},
+                                         'used': lambda params: params['general']['solver_type'] in ['ftps', 'hubbardI', 'hubbard_I']},
 
                                  'diag_delta': {'converter': BOOL_PARSER, 'used': True, 'default': False},
 
@@ -590,6 +626,47 @@ PROPERTIES_PARAMS = {'general': {'seedname': {'converter': lambda s: s.replace('
                      'solver': {
                                 #
                                 'store_solver': {'converter': BOOL_PARSER, 'used': True, 'default': False},
+                                #
+                                # hubbard_I parameters
+                                #
+                                'l' : {'converter': int, 'default': None, 
+                                       'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
+
+                                'n_msb' : {'converter': int, 'default': None, 
+                                           'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
+
+                                'use_spin_orbit' : {'converter': BOOL_PARSER, 'default': None,
+                                                    'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
+
+                                'n_mom' : {'converter': int, 'default': None, 
+                                           'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
+
+                                'U_int' : {'converter': float, 'default': None, 
+                                           'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
+
+                                'J_int' : {'converter': float, 'default': None, 
+                                           'used': lambda params: params['general']['solver_type']in ['hubbard_I']},
+
+                                'T_hub' : {'converter': float, 'default': None, 
+                                           'used': lambda params: params['general']['solver_type']in ['hubbard_I']}, 
+
+                                'verbosity' : {'converter': int, 'default': 0, 
+                                               'used': lambda params: params['general']['solver_type']in ['hubbard_I']},
+
+                                'it_num' : {'converter': int, 'default': 1, 
+                                            'used': lambda params: params['general']['solver_type']in ['hubbard_I']},
+
+                                'test_convergence' : {'converter': float, 'default': 0.0001, 
+                                                      'used': lambda params: params['general']['solver_type']in ['hubbard_I']},
+
+                                'n_lev' : {'converter': int, 'default': 0, 
+                                           'used': lambda params: params['general']['solver_type']in ['hubbard_I']},
+
+                                'remove_split' : {'converter': BOOL_PARSER, 'default': False, 
+                                                  'used': lambda params: params['general']['solver_type']in ['hubbard_I']},
+
+                                'u4ind' : {'converter': float, 'default': None, 
+                                           'used': lambda params: params['general']['solver_type']in ['hubbard_I']}, 
                                 #
                                 # cthyb parameters
                                 #
