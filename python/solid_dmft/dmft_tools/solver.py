@@ -349,24 +349,17 @@ class SolverStructure:
             self._ctint_postprocessing()
 
         elif self.general_params['solver_type'] == 'hubbard_I':
-            # fill G0_freq from sum_k to solver
             #self.triqs_solver.G0_iw << self.G0_freq
             solver_eal = self.sum_k.eff_atomic_levels()
             self.triqs_solver.set_atomic_levels(eal=solver_eal[0])
             
             # Solve the impurity problem for icrsh shell
             # *************************************
-            # this is done on every node due to very slow bcast of the AtomDiag object as of now
-            self.triqs_solver.solve(U_int=self.solver_params['U_int'], J_hund=self.solver_params['J_int'],T=None,
+            self.triqs_solver.solve(U_int = self.solver_params['U_int'], J_hund = self.solver_params['J_int'], T=None,
                                      verbosity=self.solver_params['verbosity'], Iteration_Number=self.solver_params['it_num'], 
                                      Test_Convergence=self.solver_params['test_convergence'], N_lev=self.solver_params['n_lev'], 
-                                     remove_split=self.solver_params['remove_split'], u4ind=None)
+                                     remove_split=self.solver_params['remove_split'], u4ind=self.solver_params['u4ind'])
 
-            # if density matrix is measured, get this too. Needs to be done here,
-            # because solver property 'dm' is not initialized/broadcastable
-            #if self.solver_params['measure_density_matrix']:
-            #    self.density_matrix = self.triqs_solver.dm
-            #    self.h_loc_diagonalization = self.triqs_solver.ad
             # *************************************
             self._hubbard_I_postprocessing()
 
@@ -604,10 +597,9 @@ class SolverStructure:
 
         gf_struct =  self.sum_k.gf_struct_solver_list[self.icrsh]
         # Construct the triqs_solver instances
-        triqs_solver = hubbard_I_solver(beta=self.general_params['beta'],l=self.solver_params['l'],n_msb=self.solver_params['n_msb'], 
+        triqs_solver = hubbard_I_solver(beta=self.general_params['beta'],gf_struct=gf_struct,l = self.solver_params['l'],n_msb=self.n_iw, 
                        use_spin_orbit=self.solver_params['use_spin_orbit'],Nmoments=self.solver_params['n_mom'])
 
-        # U_int=None, J_hund=None, T=None, verbosity=0, Iteration_Number=1, Test_Convergence=0.0001, N_lev=0, remove_split=False,u4ind=None)
         return triqs_solver
     
     def _create_hubbardI_solver(self):
@@ -828,14 +820,11 @@ class SolverStructure:
         '''
 
         # get everything from solver
-        #self.Sigma_freq << self.triqs_solver.Sigma_iw
-        #self.G0_freq << self.triqs_solver.G0_iw
-        #self.G0_Refreq << self.triqs_solver.G0_w
-        #self.G_freq << self.triqs_solver.G_iw
+        self.Sigma_freq << self.triqs_solver.Sigma
+        self.G0_freq << self.triqs_solver.G0
+        self.G_freq << self.triqs_solver.G
         self.sum_k.symm_deg_gf(self.G_freq, ish=self.icrsh)
         self.G_freq_unsym << self.G_freq
-        #self.G_Refreq << self.triqs_solver.G_w
-        #self.Sigma_Refreq << self.triqs_solver.Sigma_w
 
         return
 

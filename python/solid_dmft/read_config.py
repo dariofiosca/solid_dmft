@@ -632,8 +632,8 @@ PROPERTIES_PARAMS = {'general': {'seedname': {'converter': lambda s: s.replace('
                                 'l' : {'converter': int, 'default': None, 
                                        'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
 
-                                'n_msb' : {'converter': int, 'default': None, 
-                                           'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
+                                #'n_msb' : {'converter': int, 'default': None, 
+                                #           'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},
 
                                 'use_spin_orbit' : {'converter': BOOL_PARSER, 'default': None,
                                                     'used': lambda params: params['general']['solver_type'] in ['hubbard_I']},

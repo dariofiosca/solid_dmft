@@ -26,7 +26,7 @@ if mpi.is_master_node():
     out =  HDFArchive(out, 'r')['DMFT_results']['last_iter']
     ref =  HDFArchive(ref, 'r')['DMFT_results']['last_iter']
 
-    for key in ['Delta_time_0', 'G0_Refreq_0', 'G0_freq_0', 'Gimp_Refreq_0', 'Gimp_freq_0', 'Gimp_time_0', 'Sigma_Refreq_0', 'Sigma_freq_0']:
+    for key in ['G0_freq_0', 'Gimp_Refreq_0', 'Gimp_freq_0', 'Gimp_time_0', 'Sigma_Refreq_0', 'Sigma_freq_0']:
         print(key)
         assert_block_gfs_are_close(out[key],ref[key])
 
