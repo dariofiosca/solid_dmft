@@ -300,7 +300,7 @@ class SolverStructure:
                 mpi.report('\n Using the delta interface for cthyb passing Delta(tau) and Hloc0 directly.')
                  # prepare solver input
                 sumk_eal = self.sum_k.eff_atomic_levels()[self.icrsh]
-                solver_eal = self.sum_k.block_structure.convert_matrix(sumk_eal, space_from='sumk')
+                solver_eal = self.sum_k.block_structure.convert_matrix(sumk_eal, space_from='sumk', ish_from=self.sum_k.inequiv_to_corr[self.icrsh])
                 # fill Delta_time from Delta_freq sum_k to solver
                 for name, g0 in self.G0_freq:
                     self.Delta_freq[name] << iOmega_n - inverse(g0) - solver_eal[name]
@@ -407,7 +407,7 @@ class SolverStructure:
             for name, g0 in self.G0_freq:
                 spin = name.split('_')[0] if not self.sum_k.corr_shells[self.icrsh]['SO'] else name
                 ftps_name = self.convert_ftps[spin]
-                solver_eal = self.sum_k.block_structure.convert_matrix(sumk_eal, space_from='sumk')[name]
+                solver_eal = self.sum_k.block_structure.convert_matrix(sumk_eal, space_from='sumk', ish_from=self.sum_k.inequiv_to_corr[self.icrsh])[name]
                 self.Delta_freq[name] << Omega + 1j * self.general_params['eta'] - inverse(g0) - solver_eal
                 # solver Delta is symmetrized by just using 'up_0' channel
                 self.Delta_freq_solver[ftps_name] << Omega + 1j * self.general_params['eta'] - inverse(g0) - solver_eal
@@ -469,7 +469,7 @@ class SolverStructure:
             # fill Hloc FTPS object
             # get hloc_dft from effective atomic levels
             for name, gf in self.Delta_freq:
-                solver_eal = self.sum_k.block_structure.convert_matrix(sumk_eal, space_from='sumk')[name]
+                solver_eal = self.sum_k.block_structure.convert_matrix(sumk_eal, space_from='sumk', ish_from=self.sum_k.inequiv_to_corr[self.icrsh])[name]
                 if not self.sum_k.corr_shells[self.icrsh]['SO']:
                     name = self.convert_ftps[name.split('_')[0]]
                     solver_eal = solver_eal.real
@@ -747,18 +747,23 @@ class SolverStructure:
             self.G_freq << make_hermitian(self.triqs_solver.G_iw)
             self.G_freq_unsym << self.G_freq
             self.sum_k.symm_deg_gf(self.G_freq, ish=self.icrsh)
-            # obtain Sigma via dyson from symmetrized G_freq
-            self.Sigma_freq << inverse(self.G0_freq) - inverse(self.G_freq)
             # set G_time
             self.G_time << self.triqs_solver.G_tau
             self.sum_k.symm_deg_gf(self.G_time, ish=self.icrsh)
 
-            if not self.solver_params['perform_tail_fit'] and self.general_params['legendre_fit']:
+            if self.general_params['legendre_fit']:
                 self.G_time_orig << self.triqs_solver.G_tau
                 # run the filter
                 self.G_l << legendre_filter.apply(self.G_time, self.general_params['n_l'])
                 # get G_time, G_freq, Sigma_freq from G_l
                 set_Gs_from_G_l()
+            elif self.solver_params['perform_tail_fit'] and not self.general_params['legendre_fit']:
+                # if tailfit has been used replace Sigma with the tail fitted Sigma from cthyb
+                self.Sigma_freq << self.triqs_solver.Sigma_iw
+                self.sum_k.symm_deg_gf(self.Sigma_freq, ish=self.icrsh)
+            else:
+                # obtain Sigma via dyson from symmetrized G_freq
+                self.Sigma_freq << inverse(self.G0_freq) - inverse(self.G_freq)
 
         # if density matrix is measured, get this too
         if self.solver_params['measure_density_matrix']:
